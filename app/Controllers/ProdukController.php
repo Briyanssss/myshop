@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ProductModel;
+use Dompdf\Dompdf;
 
 class ProdukController extends BaseController
 {
@@ -83,5 +84,32 @@ public function delete($id)
     $this->product->delete($id);
 
     return redirect('produk')->with('success', 'Data Berhasil Dihapus');
+    }
+
+    public function download()
+    {
+            //get data from database
+        $product = $this->product->findAll();
+    
+            //pass data to file view
+        $html = view('v_produkPDF', ['product' => $product]);
+    
+            //set the pdf filename
+        $filename = date('y-m-d-H-i-s') . '-produk';
+    
+        // instantiate and use the dompdf class
+        $dompdf = new Dompdf();
+    
+        // load HTML content (file view)
+        $dompdf->loadHtml($html);
+    
+        // (optional) setup the paper size and orientation
+        $dompdf->setPaper('A4', 'potrait');
+    
+        // render html as PDF
+        $dompdf->render();
+    
+        // output the generated pdf
+        $dompdf->stream($filename);
     }
 }
